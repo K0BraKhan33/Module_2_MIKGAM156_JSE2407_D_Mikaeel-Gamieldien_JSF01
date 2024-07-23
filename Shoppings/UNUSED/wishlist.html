@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wishlist - GoodMarting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-200">
+    <header class="bg-blue-800 p-4 flex justify-between items-center">
+        <div class="flex items-center">
+            <a href="index.html">
+                <img src="path/to/logo.png" alt="Logo" class="h-10 mr-2">
+            </a>
+            <h1 class="text-white text-2xl font-bold">GoodMarting</h1>
+        </div>
+        <div class="flex space-x-4">
+            <a href="cart.html" class="text-white">
+                <img src="path/to/cart-icon.png" alt="Cart" class="h-8 w-8">
+            </a>
+            <a href="wishlist.html" class="text-white">
+                <img src="path/to/heart-icon.png" alt="Wishlist" class="h-8 w-8">
+            </a>
+        </div>
+    </header>
+
+    <div class="p-4">
+        <h1 class="text-2xl font-bold mb-4">Your Wishlist</h1>
+        <ul id="wishlist-items" class="flex flex-wrap space-x-4 space-y-4"></ul>
+        <script>
+            const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+            const wishlistItemsContainer = document.getElementById('wishlist-items');
+
+            if (wishlist.length === 0) {
+                wishlistItemsContainer.innerHTML = '<li>Your wishlist is empty.</li>';
+            } else {
+                wishlist.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = "flex-initial w-full md:w-1/2 lg:w-1/4 p-4";
+                    li.innerHTML = `
+                        <div class="border-2 border-blue-800 bg-blue-300 p-4 rounded-lg relative">
+                            <img src="${item.image}" alt="${item.title}" class="w-full h-32 object-contain mb-4">
+                            <h2 class="font-bold">${item.title}</h2>
+                            <p class="text-gray-700">$${item.price}</p>
+                            <button onclick="confirmRemoveFromWishlist(${item.id})" class="mt-2 bg-red-500 text-white px-2 py-1 rounded">Remove</button>
+                             <button @click="addToCart(product.id);" 
+                        class="bg-green-800 mt-2 text-white px-2 py-1 rounded hover:bg-green-400">
+                    Add to Cart
+                </button>
+                        </div>
+                    `;
+                    wishlistItemsContainer.appendChild(li);
+                });
+            };
+            function addToCart(item) {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart.push(item);
+                localStorage.setItem('cart', JSON.stringify(cart));}
+
+            function confirmRemoveFromWishlist(id) {
+                const confirmRemoval = confirm('Are you sure you want to remove this item from your wishlist?');
+                if (confirmRemoval) {
+                    removeFromWishlist(id);
+                }
+            }
+
+            function removeFromWishlist(id) {
+                const updatedWishlist = wishlist.filter(item => item.id !== id);
+                localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+                location.reload(); // Reload to reflect changes
+            }
+        </script>
+    </div>
+</body>
+</html>

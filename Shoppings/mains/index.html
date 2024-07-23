@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodMarting</title>
+    
+    <!-- Include Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Include Alpine.js for interactive features -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Include custom JavaScript for handling data and functionality -->
+    <script src="./js/index.js"></script>
+    
+    <style>
+        /* Custom CSS for text truncation and scrollable areas */
+        @layer utilities {
+            .line-clamp-4 {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 4;
+                overflow: hidden;
+            }
+
+            .scroll-box {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+        }
+    </style>
+</head>
+<body class="bg-blue-200">
+    <!-- Header Section -->
+    <header class="bg-blue-800 p-4 flex justify-between items-center">
+        <!-- Site Title -->
+        <div class="flex items-center">
+            <h1 class="text-white text-[4vw] font-bold">GoodMarting</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div x-data="productList()" x-init="init" class="p-4">
+        <!-- Loading Indicator -->
+        <div x-show="isLoading" class="text-center py-4">
+            <p>Loading data, please wait...</p>
+        </div>
+
+        <!-- Display Products -->
+        <div x-show="!isLoading">
+            <!-- Filters and Sorting Options -->
+            <div class="flex space-x-4 mb-4">
+                <div>
+                    <label for="sortPrice" class="block text-sm font-medium text-gray-700">Sort by Tital or Price</label>
+                    <select id="sortPrice" x-model="sortPrice" @change="sortItemsCombined"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="">Select</option>
+                        <option value="priceAsc">Price: Low to High</option>
+                        <option value="priceDesc">Price: High to Low</option>
+                        <option value="titleAsc">Title: A to Z</option>
+                        <option value="titleDesc">Title: Z to A</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sortType" class="block text-sm font-medium text-gray-700">Sort by Type</label>
+                    <select id="sortType" x-model="sortType" @change="sortItemsCombined"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <option value="">Select</option>
+                        <template x-for="category in categories" :key="category">
+                            <option x-text="category" :value="category"></option>
+                        </template>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Product List -->
+            <ul class="flex flex-wrap">
+                <template x-for="item in filteredItems" :key="item.id">
+                    <li @click="navigateTo('about.html?id=' + item.id)"
+                        class="flex-initial w-full md:w-1/2 lg:w-1/4 p-4 min-h-[30vw] sm:min-h-[25vw] md:min-h-[20vw] lg:min-h-[15vw]">
+                        <!-- Product Card -->
+                        <div class="border-2 border-blue-800 bg-blue-300 p-4 rounded-lg relative flex flex-col h-full">
+                            <!-- Product Image -->
+                            <img :src="item.image" :alt="`Image of ${item.title}`"
+                                class="w-full max-h-[35vw] sm:max-h-[20vw] md:max-h-[30vw] lg:max-h-[25vw] object-contain mb-4 cursor-pointer">
+                            <div class="flex flex-col flex-grow justify-between">
+                                <div>
+                                    <!-- Product Title -->
+                                    <h2 class="font-bold cursor-pointer text-[4vw] sm:text-[3vw] md:text-[2.5vw] lg:text-[1.5vw]"
+                                        x-text="item.title"></h2>
+                                </div>
+                                <div class="flex flex-col mt-4">
+                                    <!-- Product Price -->
+                                    <p @click="navigateTo('about.html?id=' + item.id)"
+                                        class="text-gray-700 cursor-pointer text-[4vw] sm:text-[3vw] md:text-[2.5vw] lg:text-[2vw]"
+                                        x-text="'$' + item.price"></p>
+                                    <!-- Product Category -->
+                                    <p x-text="`Category: ${item.category}`" class="text-[4vw] lg:text-[1.5vw] md:text-[2vw] sm:text-[3vw] text-black mb-0">Category</p>
+                                    <div class="flex items-center">
+                                        <!-- Product Rating -->
+                                        <span class="text-[4vw] lg:text-[1.5vw] md:text-[2vw] sm:text-[3vw] text-gray-800 mr-2">Rating:</span>
+                                        <div class="flex items-center">
+                                            <!-- Display Full Stars -->
+                                            <template x-for="i in Math.floor(item.rating.rate)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500"
+                                                    fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 17.27l6.18 3.85-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.35-1.64 7.03L12 17.27z"/>
+                                                </svg>
+                                            </template>
+                                            <!-- Display Partial Star -->
+                                            <template x-for="i in Math.ceil(item.rating.rate - Math.floor(item.rating.rate))">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500"
+                                                    fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 17.27l6.18 3.85-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.35-1.64 7.03L12 17.27z"/>
+                                                </svg>
+                                            </template>
+                                            <!-- Display Empty Stars -->
+                                            <template x-for="i in 5 - Math.ceil(item.rating.rate)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300"
+                                                    fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 17.27l6.18 3.85-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.35-1.64 7.03L12 17.27z"/>
+                                                </svg>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <!-- Number of Reviews -->
+                                    <span class="text-[4vw] lg:text-[1.5vw] md:text-[2vw] sm:text-[3vw] text-gray-800"
+                                        x-text="`(${item.rating.count} reviews)`"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

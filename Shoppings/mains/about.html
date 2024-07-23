@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodMarting - Product Details</title>
+    
+    <!-- Include Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Include Alpine.js for interactive components -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <!-- Include custom JavaScript for handling product details -->
+    <script src="./js/about.js"></script>
+    
+    <style>
+        /* Custom CSS for text truncation and scrollable boxes */
+        @layer utilities {
+            .line-clamp-4 {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 4;
+                overflow: hidden;
+            }
+            .scroll-box {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+        }
+    </style>
+</head>
+<body class="bg-blue-800 min-h-screen min-w-screen" x-data="productDetails()" x-init="init">
+    <!-- Header Section -->
+    <header class="bg-blue-800 p-4 flex items-center">
+        <a id="backLink" class="text-white text-[4vw] font-bold flex items-center space-x-2">
+            <!-- Back Arrow Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            <!-- Site Title -->
+            <span>GoodMarting</span>
+        </a>
+    </header>
+
+    <main class="p-4">
+        <!-- Loading Indicator -->
+        <div x-show="loading" class="flex justify-center items-center h-full">
+            <p class="text-white text-[5vw]">Loading...</p>
+        </div>
+
+        <!-- Product Details Section -->
+        <div x-show="!loading" class="border-2 border-blue-800 bg-blue-300 shadow-md rounded-lg w-full p-4">
+            <!-- Product Title -->
+            <h1 x-text="product.title" class="text-[5vw] sm:text-[4vw] md:text-[3vw] lg:text-[2.5vw] xl:text-[2vw] font-bold mb-0">Product Title</h1>
+            
+            <!-- Product Image -->
+            <img :src="product.image" alt="Product Image" class="w-full max-h-[50vw] sm:max-h-[35vw] md:max-h-[35vw] lg:max-h-[30vw] object-contain mb-0">
+            
+            <!-- Product Price -->
+            <p x-text="`Price: $${product.price}`" class="text-[5vw] sm:text-[4vw] md:text-[3vw] lg:text-[2vw] font-semibold text-gray-700 mb-0">Price: $0.00</p>
+            
+            <!-- Product Description -->
+            <div class="scroll-box sm:max-h-[60vw] md:max-h-[70vw] lg:max-h-[80vw] border border-gray-300 rounded mb-0">
+                <p x-text="product.description" class="text-[4vw] sm:text-[4vw] md:text-[2vw] lg:text-[1.5vw] text-black">Description</p>
+            </div>
+            
+            <!-- Product Category -->
+            <p x-text="`Category: ${product.category}`" class="text-[4vw] lg:text-[1.5vw] md:text-[2vw] sm:text-[3vw] text-black mb-0">Category</p>
+            
+            <!-- Product Rating -->
+            <div class="flex items-center mb-[50vw]">
+                <div class="flex items-center">
+                    <span class="text-[4vw] lg:text-[3vw] md:text-[2vw] sm:text-[1.5vw] text-gray-800 mr-2">Rating:</span>
+                    <div class="flex items-center">
+                        <!-- Display Full Stars -->
+                        <template x-if="product.rating && product.rating.rate !== undefined">
+                            <template x-for="i in Math.floor(product.rating.rate)">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 17.27l6.18 3.85-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.35-1.64 7.03L12 17.27z"/>
+                                </svg>
+                            </template>
+                            <!-- Display Partial Star -->
+                            <template x-for="i in Math.ceil(product.rating.rate - Math.floor(product.rating.rate))">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 17.27l6.18 3.85-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.35-1.64 7.03L12 17.27z"/>
+                                </svg>
+                            </template>
+                            <!-- Display Empty Stars -->
+                            <template x-for="i in 5 - Math.ceil(product.rating.rate)">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 17.27l6.18 3.85-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.35-1.64 7.03L12 17.27z"/>
+                                </svg>
+                            </template>
+                        </template>
+                    </div>
+                </div>
+                <!-- Display Review Count -->
+                <span x-text="product.rating ? `(${product.rating.count} reviews)` : 'No reviews'" class="text-[4vw] lg:text-[3vw] md:text-[2vw] sm:text-[1.5vw] text-gray-800"></span>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

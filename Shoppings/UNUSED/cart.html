@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" x-data="cartHandler()">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - GoodMarting</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.3/dist/cdn.min.js"></script>
+</head>
+<body class="bg-blue-200">
+    <header class="bg-blue-800 p-4 flex justify-between items-center">
+        <div class="flex items-center">
+            <a href="index.html">
+                <img src="path/to/logo.png" alt="Logo" class="h-10 mr-2">
+            </a>
+            <h1 class="text-white text-2xl font-bold">GoodMarting</h1>
+        </div>
+        <div class="flex space-x-4">
+            <a href="cart.html" class="text-white">
+                <img src="path/to/cart-icon.png" alt="Cart" class="h-8 w-8">
+            </a>
+            <a href="wishlist.html" class="text-white">
+                <img src="path/to/heart-icon.png" alt="Wishlist" class="h-8 w-8">
+            </a>
+        </div>
+    </header>
+
+    <div class="p-4">
+        <h1 class="text-2xl font-bold mb-4">Your Shopping Cart</h1>
+        <ul id="cart-items" class="flex flex-wrap space-x-4 space-y-4">
+            <template x-if="cart.length === 0">
+                <li>Your cart is empty.</li>
+            </template>
+            <template x-for="item in cartItems" :key="item.id">
+                <li class="flex-initial w-full md:w-1/2 lg:w-1/4 p-4">
+                    <div class="border-2 border-blue-800 bg-blue-300 p-4 rounded-lg relative">
+                        <img :src="item.image" :alt="item.title" class="w-full h-32 object-contain mb-4 cursor-pointer" @click="redirectToProduct(item.id)">
+                        <h2 class="font-bold cursor-pointer" @click="redirectToProduct(item.id)" x-text="item.title"></h2>
+                        <p class="text-gray-700 cursor-pointer" @click="redirectToProduct(item.id)">$<span x-text="item.price"></span> x<span x-text="item.count"></span></p>
+                        <p class="font-bold">Total: $<span x-text="(item.price * item.count).toFixed(2)"></span></p>
+                        <button @click="removeFromCart(item.id)" class="mt-2 bg-red-500 text-white px-2 py-1 rounded">Remove 1</button>
+                    </div>
+                </li>
+            </template>
+        </ul>
+        <div id="cart-summary" class="mt-4">
+            <h3 class="text-xl font-bold">Overall Total: $<span x-text="overallTotal.toFixed(2)"></span></h3>
+        </div>
+        <button id="checkout-button" class="mt-4 bg-green-500 text-white px-4 py-2 rounded" @click="checkout" x-show="cart.length > 0">Checkout</button>
+        <button id="clear-cart-button" class="mt-4 bg-red-500 text-white px-4 py-2 rounded" @click="clearCart" x-show="cart.length > 0">Clear Cart</button>
+    </div>
+
+    <script>
+        function cartHandler() {
+            return {
+                cart: JSON.parse(localStorage.getItem('cart')) || [],
+                get cartItems() {
+                    const itemCounts = this.cart.reduce((counts, item) => {
+                        counts[item.id] = (counts[item.id] || 0) + 1;
+                        return counts;
+                    }, {});
+                    return Object.keys(itemCounts).map(id => {
+                        const item = this.cart.find(i => i.id == id);
+                        return { ...item, count: itemCounts[id] };
+                    });
+                },
+                get overallTotal() {
+                    return this.cartItems.reduce((total, item) => total + item.price * item.count, 0);
+                },
+                redirectToProduct(id) {
+                    window.location.href = 'about.html?id=' + id;
+                },
+                removeFromCart(id) {
+                    const index = this.cart.findIndex(item => item.id === id);
+                    if (index !== -1) {
+                        this.cart.splice(index, 1);
+                        localStorage.setItem('cart', JSON.stringify(this.cart));
+                    }
+                },
+                clearCart() {
+                    localStorage.removeItem('cart');
+                    this.cart = [];
+                },
+                checkout() {
+                    window.location.href = 'payments.html';
+                }
+            };
+        }
+    </script>
+</body>
+</html>
